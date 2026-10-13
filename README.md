@@ -1,2 +1,2 @@
 # Spotify_BE
-Backend (Microservice Architecture)  role based Spotify Application. 
+A scalable music streaming backend inspired by Spotify, implementing microservices, role-based authorization, secure authentication, and modular API development.
