@@ -9,5 +9,5 @@ connectToDatabase();
 
 /* Auth server started */
 app.listen(config.PORT, () => {
-  console.log(`Server running on Port: ${config.PORT}`)
+  console.log(`Auth server running on Port: ${config.PORT}`)
 })
