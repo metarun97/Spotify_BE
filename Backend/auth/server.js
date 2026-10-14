@@ -7,7 +7,7 @@ import connectToDatabase from './src/db/db.js';
 connectToDatabase();
 
 
-
+/* Auth server started */
 app.listen(config.PORT, () => {
   console.log(`Server running on Port: ${config.PORT}`)
 })
