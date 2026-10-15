@@ -122,3 +122,87 @@ export const login = async (req, res) => {
     })
   }
 }
+
+
+/**
+ @name login/register
+ @description expect email only for that
+ @access public
+ */
+export const googleAuthCallback = async (req, res) => {
+
+  try {
+    const user = req.user;
+
+    const isUserAlreadyExist = await userModel.findOne({
+      $or: [
+        { email: user.emails[0].value },
+        { googleId: user.id }
+      ]
+    })
+
+    if (isUserAlreadyExist) {
+
+      const token = jwt.sign({
+        id: isUserAlreadyExist._id,
+        role: isUserAlreadyExist.role
+      }, config.JWT_SECRET, { expiresIn: "2d" });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: config.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000   // 7 days
+      })
+
+      res.status(201).json({
+        message: "User loggedIn successfully!",
+        user: {
+          id: isUserAlreadyExist._id,
+          email: isUserAlreadyExist.email,
+          fullname: isUserAlreadyExist.fullname,
+          role: isUserAlreadyExist.role,
+        }
+      })
+
+    }
+
+    const newUser = await userModel.create({
+      googleId: user.id,
+      email: user.emails[0].value,
+      fullname: {
+        firstName: user.name.givenName,
+        lastName: user.name.familyName,
+      }
+    })
+
+    const token = jwt.sign({
+      id: newUser._id,
+      role: newUser.role
+    }, config.JWT_SECRET, { expiresIn: "2d" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: config.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000   // 7 days
+    })
+
+    res.status(201).json({
+      message: "User registered successfully!",
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        fullname: newUser.fullname,
+        role: newUser.role,
+      }
+    })
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal server error in Authregister",
+    })
+  }
+}
