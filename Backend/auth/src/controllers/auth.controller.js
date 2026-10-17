@@ -37,7 +37,7 @@ export const register = async (req, res) => {
       role: user.role
     }, config.JWT_SECRET, { expiresIn: "2d" })
 
-    /* Pass message in queue */
+    /* Publish message in queue */
     await publishToQueue("user_created", {
       id: user.id,
       email: user.email,
@@ -188,6 +188,15 @@ export const googleAuthCallback = async (req, res) => {
       id: newUser._id,
       role: newUser.role
     }, config.JWT_SECRET, { expiresIn: "2d" });
+
+
+ /* Publish message in queue */
+    await publishToQueue("user_created", {
+      id: newUser._id,
+      email: newUser.email,
+      fullname: newUser.fullname,
+      role: newUser.role
+    })
 
     res.cookie("token", token, {
       httpOnly: true,
